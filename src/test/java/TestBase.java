@@ -2,19 +2,14 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.HashMap;
 
-public class sauceDemo {
+public class TestBase {
     WebDriver driver;
-    String price = "";
-    String insidePrice = "";
-
     @BeforeClass
     public void setup() {
         //avoid Chrome Unnecessary Alerts
@@ -30,92 +25,7 @@ public class sauceDemo {
         driver.get("https://www.saucedemo.com/v1/");
     }
 
-    @Test(priority = 1)
-    public void testOpenMainPage() {
-        login();
-
-        price = getFirstItemPrice();
-
-        System.out.println("price:" + price);
-    }
-
-    @Test(priority = 2)
-    public void testProductPageInfo() {
-
-        openProductPage();
-
-        insidePrice = getPriceOnProductPage();
-        System.out.println("Inside price:" + insidePrice);
-
-        Assert.assertEquals(price, insidePrice);
-    }
-
-    @Test(priority = 3)
-    public void testAddToCart() {
-        addToCartFromProductPage();
-        String number = "1";
-        String numberCheck = getNumberOfProductsInCart();
-        Assert.assertEquals(numberCheck, number);
-    }
-
-    @Test(priority = 4)
-    public void testCartPage() {
-        driver.findElement(By.cssSelector("svg[data-icon='shopping-cart']")).click();
-        String checkoutPrice = driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
-        System.out.println("Checkout price: " + checkoutPrice);
-        String noDollarPrice = insidePrice.replace("$", "");
-        Assert.assertEquals(noDollarPrice, checkoutPrice);
-    }
-
-    @Test(priority = 5)
-    public void testFillCheckoutInput() {
-        checkout();
-
-        fillCheckoutInput();
-    }
-
-    @Test(priority = 6)
-    public void testCheckPrices() {
-        confirmCheckoutInput();
-
-        String finalPrice = getFinalPrice();
-        System.out.println(finalPrice);
-        Assert.assertEquals(finalPrice, price);
-        System.out.println("Final price: OK");
-
-        String itemTotal = getItemTotal();
-        String itemTotal2 = itemTotal.split(" ")[2];
-        Assert.assertEquals(itemTotal2, price);
-        System.out.println("Item total price: OK");
-
-        String expectedTax = "Tax: $2.40";
-        String tax = getTax();
-        Assert.assertEquals(tax, expectedTax);
-        System.out.println("Tax: OK");
-
-        String expectedTotal = "Total: $32.39";
-        String total = getTotalBrutto();
-        Assert.assertEquals(total, expectedTotal);
-        System.out.println("Total: OK");
-    }
-
-    @Test(priority = 7)
-    public void testFinishedOrederInfo() {
-        finishOrder();
-
-        String expectedMessage1 = "THANK YOU FOR YOUR ORDER";
-        String expectedMessage2 = "Your order has been dispatched, and will arrive just as fast as the pony can get there!";
-
-        String Message1 = getSuccessTitle();
-
-        String Message2 = getSuccessMessage();
-        Assert.assertEquals(Message1, expectedMessage1);
-        System.out.println("Message1: OK");
-        Assert.assertEquals(Message2, expectedMessage2);
-        System.out.println("Message2: OK");
-    }
-
-    private void openProductPage() {
+    public void openProductPage() {
         driver.findElement(By.cssSelector("div[class='inventory_item_name']")).click();
     }
 
@@ -182,6 +92,12 @@ public class sauceDemo {
 
     public String getSuccessMessage() {
         return driver.findElement(By.cssSelector("div[class='complete-text']")).getText();
+    }
+    public void openCartPage(){
+        driver.findElement(By.cssSelector("svg[data-icon='shopping-cart']")).click();
+    }
+    public String getCartPrice(){
+        return driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
     }
 
     @AfterClass
