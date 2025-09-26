@@ -12,7 +12,8 @@ import java.util.HashMap;
 
 public class sauceDemo {
     WebDriver driver;
-    String firstItemPrice = "";
+    String price = "";
+    String insidePrice = "";
 
     @BeforeClass
     public void setup() {
@@ -28,58 +29,78 @@ public class sauceDemo {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
         driver.get("https://www.saucedemo.com/v1/");
     }
-    @Test
-    public void testSauceShops(){
+
+    @Test(priority = 1)
+    public void testOpenMainPage() {
         login();
 
-        String price = getFirstItemPrice();
+        price = getFirstItemPrice();
 
         System.out.println("price:" + price);
+    }
+
+    @Test(priority = 2)
+    public void testProductPageInfo() {
 
         openProductPage();
 
-        String insidePrice = getPriceOnProductPage();
+        insidePrice = getPriceOnProductPage();
         System.out.println("Inside price:" + insidePrice);
 
         Assert.assertEquals(price, insidePrice);
+    }
 
+    @Test(priority = 3)
+    public void testAddToCart() {
         addToCartFromProductPage();
         String number = "1";
         String numberCheck = getNumberOfProductsInCart();
-        Assert.assertEquals(numberCheck,number);
+        Assert.assertEquals(numberCheck, number);
+    }
 
+    @Test(priority = 4)
+    public void testCartPage() {
         driver.findElement(By.cssSelector("svg[data-icon='shopping-cart']")).click();
         String checkoutPrice = driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
-        System.out.println("Checkout price: "+checkoutPrice);
-        String noDollarPrice = insidePrice.replace("$","");
-        Assert.assertEquals(noDollarPrice,checkoutPrice);
+        System.out.println("Checkout price: " + checkoutPrice);
+        String noDollarPrice = insidePrice.replace("$", "");
+        Assert.assertEquals(noDollarPrice, checkoutPrice);
+    }
 
+    @Test(priority = 5)
+    public void testFillCheckoutInput() {
         checkout();
 
         fillCheckoutInput();
+    }
 
+    @Test(priority = 6)
+    public void testCheckPrices() {
         confirmCheckoutInput();
 
         String finalPrice = getFinalPrice();
         System.out.println(finalPrice);
-        Assert.assertEquals(finalPrice,price);
+        Assert.assertEquals(finalPrice, price);
         System.out.println("Final price: OK");
 
         String itemTotal = getItemTotal();
         String itemTotal2 = itemTotal.split(" ")[2];
-        Assert.assertEquals(itemTotal2,price);
+        Assert.assertEquals(itemTotal2, price);
         System.out.println("Item total price: OK");
 
         String expectedTax = "Tax: $2.40";
         String tax = getTax();
-        Assert.assertEquals(tax,expectedTax);
+        Assert.assertEquals(tax, expectedTax);
         System.out.println("Tax: OK");
 
         String expectedTotal = "Total: $32.39";
         String total = getTotalBrutto();
-        Assert.assertEquals(total,expectedTotal);
+        Assert.assertEquals(total, expectedTotal);
         System.out.println("Total: OK");
+    }
 
+    @Test(priority = 7)
+    public void testFinishedOrederInfo() {
         finishOrder();
 
         String expectedMessage1 = "THANK YOU FOR YOUR ORDER";
@@ -88,9 +109,9 @@ public class sauceDemo {
         String Message1 = getSuccessTitle();
 
         String Message2 = getSuccessMessage();
-        Assert.assertEquals(Message1,expectedMessage1);
+        Assert.assertEquals(Message1, expectedMessage1);
         System.out.println("Message1: OK");
-        Assert.assertEquals(Message2,expectedMessage2);
+        Assert.assertEquals(Message2, expectedMessage2);
         System.out.println("Message2: OK");
     }
 
@@ -98,73 +119,73 @@ public class sauceDemo {
         driver.findElement(By.cssSelector("div[class='inventory_item_name']")).click();
     }
 
-    public void login(){
+    public void login() {
         driver.findElement(By.cssSelector("input[data-test='username']")).sendKeys("standard_user");
         driver.findElement(By.cssSelector("input[id='password']")).sendKeys("secret_sauce");
         driver.findElement(By.cssSelector("input[id='login-button']")).click();
     }
 
-    public String getFirstItemPrice(){
+    public String getFirstItemPrice() {
         return driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
     }
 
-    public String getPriceOnProductPage(){
+    public String getPriceOnProductPage() {
         return driver.findElement(By.cssSelector("div[class='inventory_details_price']")).getText();
     }
 
-    public void addToCartFromProductPage(){
+    public void addToCartFromProductPage() {
         driver.findElement(By.cssSelector("button[class='btn_primary btn_inventory']")).click();
     }
 
-    public String getNumberOfProductsInCart(){
+    public String getNumberOfProductsInCart() {
         return driver.findElement(By.cssSelector("span[class='fa-layers-counter shopping_cart_badge']")).getText();
     }
 
-    public void checkout(){
+    public void checkout() {
         driver.findElement(By.cssSelector("a[class='btn_action checkout_button']")).click();
     }
 
-    public void fillCheckoutInput(){
+    public void fillCheckoutInput() {
         driver.findElement(By.cssSelector("input[id='first-name']")).sendKeys("imie");
         driver.findElement(By.cssSelector("input[id='last-name']")).sendKeys("nazwisko");
         driver.findElement(By.cssSelector("input[id='postal-code']")).sendKeys("123456");
     }
 
-    public void confirmCheckoutInput(){
+    public void confirmCheckoutInput() {
         driver.findElement(By.cssSelector("input[class='btn_primary cart_button']")).click();
     }
 
-    public String getFinalPrice(){
+    public String getFinalPrice() {
         return driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
     }
 
-    public String getItemTotal(){
+    public String getItemTotal() {
         return driver.findElement(By.cssSelector("div[class='summary_subtotal_label']")).getText();
     }
 
-    public String getTax(){
-       return driver.findElement(By.cssSelector("div[class='summary_tax_label']")).getText();
+    public String getTax() {
+        return driver.findElement(By.cssSelector("div[class='summary_tax_label']")).getText();
     }
 
     //final price + tax
-    public String getTotalBrutto(){
+    public String getTotalBrutto() {
         return driver.findElement(By.cssSelector("div[class='summary_total_label']")).getText();
     }
 
-    public void finishOrder(){
+    public void finishOrder() {
         driver.findElement(By.cssSelector("a[class='btn_action cart_button']")).click();
     }
 
-    public String getSuccessTitle(){
+    public String getSuccessTitle() {
         return driver.findElement(By.cssSelector("h2[class='complete-header']")).getText();
     }
 
-    public String getSuccessMessage(){
+    public String getSuccessMessage() {
         return driver.findElement(By.cssSelector("div[class='complete-text']")).getText();
     }
 
     @AfterClass
-    public void tearDown(){
+    public void tearDown() {
         driver.quit();
     }
 }
