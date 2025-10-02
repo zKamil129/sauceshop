@@ -58,4 +58,6 @@ public class ApplicationManager {
     public CheckoutPageHelper checkoutPage() {
         return checkoutPageHelper;
     }
+
+
 }

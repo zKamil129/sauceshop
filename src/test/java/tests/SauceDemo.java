@@ -1,33 +1,46 @@
 package tests;
 
+import model.Product;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashSet;
 
 public class SauceDemo extends TestBase {
     WebDriver driver;
-    String price = "";
+    String randomProductPrice = "";
+    Product product;
     String insidePrice = "";
 
+    @BeforeClass
+    public void login(){
+        app.session().login();
+
+    }
 
     @Test(priority = 1)
     public void testOpenMainPage() {
-        app.session().login();
 
-        price = app.mainPage().getFirstItemPrice();
-
-        System.out.println("price:" + price);
+        System.out.println(app.mainPage().getProducts());
+        product = new HashSet<Product>(app.mainPage().getProducts()).iterator().next();
+        randomProductPrice = product.getPrice();
+        System.out.println("RandomProduct: " + product);
+        System.out.println("RandomProductPrice: " + randomProductPrice);
     }
 
     @Test(priority = 2)
     public void testProductPageInfo() {
 
-        app.mainPage().openProductPage();
+        app.mainPage().openProductPage(product);
 
         insidePrice = app.productPage().getPriceOnProductPage();
         System.out.println("Inside price:" + insidePrice);
 
-        Assert.assertEquals(price, insidePrice);
+        Assert.assertEquals(randomProductPrice, insidePrice);
     }
 
     @Test(priority = 3)
@@ -60,20 +73,21 @@ public class SauceDemo extends TestBase {
 
         String finalPrice = app.checkoutPage().getFinalPrice();
         System.out.println(finalPrice);
-        Assert.assertEquals(finalPrice, price);
+        Assert.assertEquals(finalPrice, randomProductPrice);
         System.out.println("Final price: OK");
 
         String itemTotal = app.checkoutPage().getItemTotal();
         String itemTotal2 = itemTotal.split(" ")[2];
-        Assert.assertEquals(itemTotal2, price);
+        Assert.assertEquals(itemTotal2, randomProductPrice);
         System.out.println("Item total price: OK");
 
-        String expectedTax = "Tax: $2.40";
+        BigDecimal actualTax = new BigDecimal(randomProductPrice.replaceAll("\\$","")).multiply(new BigDecimal("0.08")).setScale(2, RoundingMode.HALF_UP);
+        String expectedTax = "Tax: $" + actualTax;
         String tax = app.checkoutPage().getTax();
         Assert.assertEquals(tax, expectedTax);
         System.out.println("Tax: OK");
-
-        String expectedTotal = "Total: $32.39";
+        BigDecimal actualTotal = new BigDecimal(randomProductPrice.replaceAll("\\$","")).add(actualTax);
+        String expectedTotal = "Total: $" + actualTotal;
         String total = app.checkoutPage().getTotalBrutto();
         Assert.assertEquals(total, expectedTotal);
         System.out.println("Total: OK");

@@ -8,7 +8,7 @@ public class SauceDemo2 extends TestBase{
     @Test(priority = 1)
     public void testOpenMainPage(){
         app.session().login();
-        app.mainPage().openProductPage();
+        app.mainPage().openFirstProductPage();
         app.productPage().backToMainPage();
     }
 
