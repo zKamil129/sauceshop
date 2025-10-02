@@ -21,4 +21,8 @@ public class ProductPageHelper {
     public void openCartPage() {
         driver.findElement(By.cssSelector("svg[data-icon='shopping-cart']")).click();
     }
+
+    public void backToMainPage(){
+        driver.findElement(By.xpath("//button[@class='inventory_details_back_button']")).click();
+    }
 }

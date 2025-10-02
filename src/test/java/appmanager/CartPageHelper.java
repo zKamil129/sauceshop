@@ -21,4 +21,12 @@ public class CartPageHelper {
     public String getCartPrice() {
         return driver.findElement(By.cssSelector("div[class='inventory_item_price']")).getText();
     }
+
+    public void continueShopping(){
+        driver.findElement(By.xpath("//a[@class='btn_secondary']")).click();
+    }
+
+    public void removeProduct(){
+        driver.findElement(By.xpath("//button[@class='btn_secondary cart_button']")).click();
+    }
 }
